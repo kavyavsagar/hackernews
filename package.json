@@ -1,0 +1,10 @@
+{
+  "name": "Hacker News",
+  "version": "1.0.0",
+  "description": "Hacker News App",
+  "dependencies": {
+    "express": "latest",
+    "open": "0.0.3"
+  },
+  "author": "kavyasagar15@gmail.com"
+}

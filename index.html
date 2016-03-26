@@ -1,0 +1,316 @@
+<html lang="en" ng-app="newsApp">
+  <head>
+    <title>Hacker News</title>
+    <link rel="shortcut icon" href="https://d3nb9u6x572n0.cloudfront.net/assets/favicon-68be7dd3f7e23e267d1143e1b03062ed.ico">
+     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+   
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body layout="row" ng-controller="AppCtrl">
+    
+    <div layout="column" class="relative whiteframedemoBasicClassUsage hacker-head" layout-fill role="main">
+     
+      <md-toolbar ng-show="!showSearch">
+        <div class="md-toolbar-tools"> 
+          <img src="img/logo.png" alt="" class="logo"/>         
+          <h3>
+            Hacker News
+          </h3>
+          <span flex></span>
+          <md-button aria-label="Search" ng-click="showSearch = !showSearch">
+            <ng-md-icon icon="search"></ng-md-icon>
+          </md-button>
+          <md-button aria-label="Open Settings" ng-click="showListBottomSheet($event)">
+            <ng-md-icon icon="more_vert"></ng-md-icon>
+          </md-button>
+        </div>
+        <md-tabs md-stretch-tabs class="md-primary" md-selected="data.selectedIndex">
+          <md-tab id="tab1" aria-controls="tab1-content" md-on-select="tabSelect(1)">
+            New
+          </md-tab>
+          <md-tab id="tab2" aria-controls="tab2-content" md-on-select="tabSelect(2)">
+            Comments
+          </md-tab>
+          <md-tab id="tab3" aria-controls="tab3-content" md-on-select="tabSelect(3)">
+            Show
+          </md-tab>
+          <md-tab id="tab4" aria-controls="tab4-content" md-on-select="tabSelect(4)">
+            Ask
+          </md-tab>
+          <md-tab id="tab5" aria-controls="tab5-content" md-on-select="tabSelect(5)">
+            Jobs
+          </md-tab>          
+        </md-tabs>
+      </md-toolbar>
+      <md-toolbar class="md-hue-1" ng-show="showSearch">
+        <div class="md-toolbar-tools">
+          <md-button ng-click="showSearch = !showSearch" aria-label="Back">
+            <ng-md-icon icon="arrow_back"></ng-md-icon>
+          </md-button>
+          <h3 flex="10">
+            Back
+          </h3>
+          <md-input-container md-theme="input" flex>
+            <label>&nbsp;</label>
+            <input ng-model="search.who" placeholder="enter search">
+          </md-input-container>
+          <md-button aria-label="Search" ng-click="showSearch = !showSearch">
+            <ng-md-icon icon="search"></ng-md-icon>
+          </md-button>
+          <md-button aria-label="Open Settings" ng-click="showListBottomSheet($event)">
+            <ng-md-icon icon="more_vert"></ng-md-icon>
+          </md-button>
+        </div>       
+      </md-toolbar>   
+      <md-content flex md-scroll-y>
+        <ui-view layout="column" layout-fill layout-padding>
+          <div class="inset" hide-sm></div>
+           <div class="md-page-header">
+                <h2>{{tabTitle}}</h2>
+            </div>      
+            <ng-switch on="data.selectedIndex" class="tabpanel-container">            
+              <div role="tabpanel"
+                   id="tab1-content"
+                   aria-labelledby="tab1"
+                   ng-switch-when="0"
+                   md-swipe-left="next()"
+                   md-swipe-right="previous()"
+                   layout="row" layout-align="center center">
+                  <md-card flex-gt-sm="90" flex-gt-md="80">
+                    <md-card-content>                     
+                      <md-list>
+                        <md-item ng-repeat="item in newstories | filter:search">
+                          <md-item-content>
+                            <div class="md-tile-left inset  lb-ico" hide-sm>                                
+                               <i class="material-icons">library_books</i>
+                            </div>
+                            <div class="md-tile-content">
+                              <h3>{{item.title}}</h3>
+                              <h4><span>{{item.by}}</span></h4>
+                              
+                              <div class="ls-footer">
+                                <span ng-if="item.descendants"><i class="material-icons">comment</i>{{item.descendants}} Points</span><span><i class="material-icons">av_timer</i>{{item.time  * 1000 | date:'fullDate'}}</span>
+                                <span ng-if="item.url"><i class="material-icons">open_in_new</i><a href="{{item.url}}" target="_blank">{{item.url | domain }}</a></span>
+                              </div>
+                            </div>
+                          </md-item-content>
+                          <md-divider md-inset hide-sm ng-if="!$last"></md-divider>
+                          <md-divider hide-gt-sm ng-if="!$last"></md-divider>
+                        </md-item>
+                        <md-divider></md-divider>
+                        <md-item layout class="outset more">
+                          <md-button layout layout-align="start center" flex class="md-primary pagination" ng-click="nextNewStories();" ng-hide="hide_NewPage">
+                            <span><i class="material-icons">loop</i>Load More</span>
+                          </md-button>
+                        </md-item>
+                        <div ng-hide="!loading" id="loading">                
+                          <img id="loading-image" src="img/loading_spinner.gif" alt="Loading..." />
+                        </div>
+                      </md-list>
+                    </md-card-content>
+                  </md-card>
+              </div>
+              <div role="tabpanel"
+                   id="tab2-content"
+                   aria-labelledby="tab2"
+                   ng-switch-when="1"
+                   md-swipe-left="next()"
+                   md-swipe-right="previous()" 
+                   layout="row" layout-align="center center">
+                  <md-card flex-gt-sm="90" flex-gt-md="80">
+                    <md-card-content>                     
+                      <md-list>
+                        <md-item ng-repeat="item in comments | filter:search">
+                          <md-item-content>
+                            <div class="md-tile-left inset com-ico" hide-sm>                                
+                              <i class="material-icons">comment</i>
+                            </div>
+                            <div class="md-tile-content">
+                              <h3>{{item.parent_title}}</h3>
+                              <h4><span>{{item.by}}</span></h4>
+                              <div ng-if="item.text" class="text-content">{{item.text | htmlToPlaintext | limitTo: 400}}</div>
+                              <div class="ls-footer">
+                                <span><i class="material-icons">av_timer</i>{{item.time  * 1000 | date:'fullDate'}}</span>
+                              </div>
+                            </div>
+                          </md-item-content>
+                          <md-divider md-inset hide-sm ng-if="!$last"></md-divider>
+                          <md-divider hide-gt-sm ng-if="!$last"></md-divider>
+                        </md-item>
+                        <md-divider></md-divider>
+                        <md-item layout class="outset more">
+                        <md-button layout layout-align="start center" flex class="md-primary pagination" ng-click="nextComments();" ng-hide="hide_comPage">
+                          <span><i class="material-icons">loop</i>Load More</span>
+                        </md-button>
+                        <div ng-hide="!cloading" id="loading">                
+                          <img id="loading-image" src="img/loading_spinner.gif" alt="Loading..." />
+                        </div>
+                        </md-item>
+                      </md-list>
+                    </md-card-content>
+                  </md-card>
+              </div>
+              <div role="tabpanel"
+                   id="tab3-content"
+                   aria-labelledby="tab3"
+                   ng-switch-when="2"
+                   md-swipe-left="next()"
+                   md-swipe-right="previous()" 
+                   layout="row" layout-align="center center">
+                  <md-card flex-gt-sm="90" flex-gt-md="80">
+                    <md-card-content>                   
+                      <md-list>
+                        <md-item ng-repeat="item in showstories | filter:search">
+                           <md-item-content>
+                            <div class="md-tile-left inset  ss-ico" hide-sm>                                
+                               <i class="material-icons">screen_share</i>
+                            </div>
+                            <div class="md-tile-content">
+                              <h3>{{item.title}}</h3>
+                              <h4><span>{{item.by}}</span></h4>
+                              
+                              <div class="ls-footer">
+                                <span ng-if="item.descendants"><i class="material-icons">comment</i>{{item.descendants}} Points</span><span><i class="material-icons">av_timer</i>{{item.time  * 1000 | date:'fullDate'}}</span>
+                                <span ng-if="item.url"><i class="material-icons">open_in_new</i><a href="{{item.url}}" target="_blank">{{item.url | domain }}</a></span>
+                              </div>
+                            </div>
+                          </md-item-content>
+                          <md-divider md-inset hide-sm ng-if="!$last"></md-divider>
+                          <md-divider hide-gt-sm ng-if="!$last"></md-divider>
+                        </md-item>
+                        <md-divider></md-divider>
+                        <md-item layout class="outset more">
+                            <md-button layout layout-align="start center" flex class="md-primary pagination" ng-click="nextShowStories();" ng-hide="hide_showPage">
+                              <span><i class="material-icons">loop</i>Load More</span>
+                            </md-button>
+                            <div ng-hide="!sloading" id="loading">                
+                          <img id="loading-image" src="img/loading_spinner.gif" alt="Loading..." />
+                        </div>
+                        </md-item>
+                      </md-list>
+                    </md-card-content>
+                  </md-card>
+              </div>
+              <div role="tabpanel"
+                   id="tab4-content"
+                   aria-labelledby="tab4"
+                   ng-switch-when="3"
+                   md-swipe-left="next()"
+                   md-swipe-right="previous()" 
+                   layout="row" layout-align="center center">
+                  <md-card flex-gt-sm="90" flex-gt-md="80">
+                    <md-card-content>                      
+                      <md-list>
+                        <md-item ng-repeat="item in askstories | filter:search">
+                         <md-item-content>
+                            <div class="md-tile-left inset hp-ico" hide-sm>                                
+                               <i class="material-icons ">help</i>
+                            </div>
+                            <div class="md-tile-content">
+                              <h3>{{item.title}}</h3>
+                              <h4><span>{{item.by}}</span></h4>
+                              
+                              <div class="ls-footer">
+                                <span ng-if="item.descendants"><i class="material-icons">comment</i>{{item.descendants}} Points</span><span><i class="material-icons">av_timer</i>{{item.time * 1000 | date:'fullDate'}}</span>
+                                <span ng-if="item.url"><i class="material-icons">open_in_new</i><a href="{{item.url}}" target="_blank">{{item.url | domain }}</a></span>
+                              </div>
+                            </div>
+                          </md-item-content>
+                          <md-divider md-inset hide-sm ng-if="!$last"></md-divider>
+                          <md-divider hide-gt-sm ng-if="!$last"></md-divider>
+                        </md-item>
+                        <md-divider></md-divider>
+                        <md-item layout class="outset more">
+                            <md-button layout layout-align="start center" flex class="md-primary pagination" ng-click="nextAskStories();" ng-hide="hide_askPage">
+                              <span><i class="material-icons">loop</i>Load More</span>
+                            </md-button>
+                        </md-item>
+                        <div ng-hide="!aloading" id="loading">                
+                          <img id="loading-image" src="img/loading_spinner.gif" alt="Loading..." />
+                        </div>
+                      </md-list>
+                    </md-card-content>
+                  </md-card>
+              </div>
+              <div role="tabpanel"
+                   id="tab5-content"
+                   aria-labelledby="tab5"
+                   ng-switch-when="4"
+                   md-swipe-left="next()"
+                   md-swipe-right="previous()" 
+                   layout="row" layout-align="center center">
+                  <md-card flex-gt-sm="90" flex-gt-md="80">
+                    <md-card-content>                     
+                        <md-list md-ink-ripple>
+                        <md-item ng-repeat="item in jobstories | filter:search">
+                           <md-item-content>
+                            <div class="md-tile-left inset wk-ico" hide-sm>                                
+                               <i class="material-icons">assignment_turned_in</i>
+                            </div>
+                            <div class="md-tile-content">
+                              <h3>{{item.title}}</h3>
+                              <h4><span>{{item.by}}</span></h4>
+                              
+                              <div class="ls-footer">
+                                <span ng-if="item.score"><i class="material-icons">star_half</i>{{item.score}} Score</span><span><i class="material-icons">av_timer</i>{{item.time  * 1000 | date:'fullDate'}}</span>
+                                <span ng-if="item.url"><i class="material-icons">open_in_new</i><a href="{{item.url}}" target="_blank">{{item.url | domain }}</a></span>
+                              </div>
+                            </div>
+                          </md-item-content>
+                          <md-divider md-inset hide-sm ng-if="!$last"></md-divider>
+                          <md-divider hide-gt-sm ng-if="!$last"></md-divider>
+                        </md-item>
+                        <md-divider></md-divider>
+                        <md-item layout class="outset more">
+                            <md-button layout layout-align="start center" flex class="md-primary pagination" ng-click="nextJobStories();" ng-hide="hide_jobPage">
+                               <span><i class="material-icons">loop</i>Load More</span>
+                            </md-button>
+                             <div ng-hide="!jloading" id="loading">                
+                          <img id="loading-image" src="img/loading_spinner.gif" alt="Loading..." />
+                        </div>
+                        </md-item>
+                      </md-list>
+                    </md-card-content>
+                  </md-card>
+              </div>
+          </ng-switch>
+          
+        </ui-view>
+        
+        <div layout="row" layout-align="center center">
+          <footer class="news-footer mdl-mega-footer ">         
+
+            <div class="mdl-mega-footer--middle-section ">
+              <p class="mdl-typography--font-light">Applications are open for YC Summer 2016 </p>          
+            </div>
+            <div class="mdl-mega-footer--bottom-section">            
+              <a class="news-link mdl-typography--font-light" href="https://news.ycombinator.com/newsguidelines.html">Guidelines</a> 
+              <a class="news-link mdl-typography--font-light" href="https://news.ycombinator.com/newsfaq.html">FAQ</a>
+              <a class="news-link mdl-typography--font-light" href="mailto:hn@ycombinator.com">Support</a>
+              <a class="news-link mdl-typography--font-light" href="https://github.com/HackerNews/API">API</a>
+              <a class="news-link mdl-typography--font-light" href="https://news.ycombinator.com/security.html">Security</a>
+              <a class="news-link mdl-typography--font-light" href="https://news.ycombinator.com/lists">Lists</a>
+              <a class="news-link mdl-typography--font-light" href="https://news.ycombinator.com/bookmarklet.html">Bookmarklet</a>
+              <a class="news-link mdl-typography--font-light" href="https://news.ycombinator.com/dmca.html">DMCA</a>
+              <a class="news-link mdl-typography--font-light" href="http://www.ycombinator.com/apply/">Apply to YC</a>
+              <a class="news-link mdl-typography--font-light" href="mailto:hn@ycombinator.com">Contact</a>
+            </div>
+          </footer>
+        </div>
+   
+      </md-content>
+
+    </div>   
+    <script src="https://code.angularjs.org/1.3.6/angular.min.js"></script>
+    <script src="https://code.angularjs.org/1.3.6/angular-animate.min.js"></script>
+    <script src="https://code.angularjs.org/1.3.6/angular-aria.min.js"></script>
+    <script src="https://code.angularjs.org/1.3.6/angular-sanitize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/angular-material-icons/0.4.0/angular-material-icons.min.js"></script>
+    <script src="app/app.js"></script> 
+    <script src="app/services.js"></script> 
+     <script src="app/filters.js"></script> 
+  </body>
+</html>
